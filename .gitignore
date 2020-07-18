@@ -1,3 +1,4 @@
 *.session
 *.db
 .idea/
+/anon1.session
