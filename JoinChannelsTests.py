@@ -1,16 +1,17 @@
-import psycopg2
-import time
-from telethon import TelegramClient
-import re
 import asyncio
 import datetime
-import sqlite3 as sqlite
-from threading import Thread
 import random
-from telethon.tl.functions.messages import GetBotCallbackAnswerRequest
+import re
+import sqlite3 as sqlite
+import time
+from threading import Thread
+
+import psycopg2
+from telethon import TelegramClient
 from telethon import errors
-from telethon.tl.functions.channels import LeaveChannelRequest
 from telethon.tl.functions.channels import JoinChannelRequest
+from telethon.tl.functions.channels import LeaveChannelRequest
+from telethon.tl.functions.messages import GetBotCallbackAnswerRequest
 
 print(f"Готов вкалывать")
 #playsound('readytowork.mp3')
@@ -42,7 +43,7 @@ async def workThread(x):
     print(f"Успешный вход в аккаунт - bot id - {x}")
     sorry_count = 0
     count = 0
-    max_count = 2
+    max_count = 1
     error_count = 0
     not_free_found = False
     while True:
@@ -217,3 +218,4 @@ if __name__ == '__main__':
 
 
 #TODO Отформатировать код.
+#TODO Переписать вывод в потоки. Переписать строку запроса для потоков SELECT Count(ID) FROM RegistredBots на SELECT ID FROM RegistredBots для того чтобы исправить ошибку

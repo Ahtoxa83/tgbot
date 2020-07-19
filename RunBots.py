@@ -1,13 +1,14 @@
-import sqlite3 as sqlite
-import time
-from telethon import TelegramClient
-import re
 import asyncio
-from threading import Thread
 import random
+import re
+import time
 import urllib.request
-from telethon.tl.functions.messages import GetBotCallbackAnswerRequest
+from threading import Thread
 
+import psycopg2
+from telethon import TelegramClient
+from telethon import errors
+from telethon.tl.functions.messages import GetBotCallbackAnswerRequest
 
 
 async def workThread(x):
@@ -19,7 +20,8 @@ async def workThread(x):
 
         if exit_pool is True:
             break
-        connect = sqlite.Connection("ParsedAccounts.db", timeout=15)
+        connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
+                                   password='s56u9555', host='localhost')
 
         cur = connect.cursor()
         cur.execute(f"SELECT API_ID FROM RegistredBots WHERE ID = {x}")
@@ -44,7 +46,7 @@ async def workThread(x):
         capcha_counts = 0
         wait_in_quests = 0
         count_tryes = 0
-        max_count_types = random.randrange(3, 5)
+        max_count_types = 3
         errors_count = 0
         errors_bool = False
         thisdialog = None
@@ -75,206 +77,209 @@ async def workThread(x):
                 connect.close()
                 exit_pool = True
                 break
-            dialogs = await client.get_dialogs()
-            for dialog in dialogs:
-                if dialog.title == 'LTC Click Bot':
-                    thisdialog = dialog
-                    print(thisdialog.title)
+            try:
+                dialogs = await client.get_dialogs()
+                for dialog in dialogs:
+                    if dialog.title == 'LTC Click Bot':
+                        thisdialog = dialog
+                        print(thisdialog.title)
 
-            await client.send_message('LTC Click Bot', '🖥 Visit sites')
-            time.sleep(5)
-            msgs = await client.get_messages(thisdialog, limit=1)
-            for mes in msgs:
-                if re.search(r'Press the "Visit website"', mes.message):
-                    button_data = mes.reply_markup.rows[1].buttons[1].data
-                    message_id = mes.id
-                    time.sleep(3)
+                await client.send_message('LTC Click Bot', '🖥 Visit sites')
+                time.sleep(5)
+                msgs = await client.get_messages(thisdialog, limit=1)
+                for mes in msgs:
+                    if re.search(r'Press the "Visit website"', mes.message):
+                        button_data = mes.reply_markup.rows[1].buttons[1].data
+                        message_id = mes.id
+                        time.sleep(3)
 
-                elif re.search(r'\bSorry\b', mes.message):
-                    print("Пидоры извиняются")
-                    wait_in_quests += 1
-                    print("Ниче еще раз проверим")
-                    errors_bool = True
+                    elif re.search(r'\bSorry\b', mes.message):
+                        print("Пидоры извиняются")
+                        wait_in_quests += 1
+                        print("Ниче еще раз проверим")
+                        errors_bool = True
 
-                elif re.search(r'\bThe address you entered looks invalid.\b', mes.message):
-                    print("Ошибка после проверки баланса. Исправляем...")
-                    await client.send_message('LTC Click Bot', '❌ Cancel')
-                    errors_bool = True
+                    elif re.search(r'\bThe address you entered looks invalid.\b', mes.message):
+                        print("Ошибка после проверки баланса. Исправляем...")
+                        await client.send_message('LTC Click Bot', '❌ Cancel')
+                        errors_bool = True
 
-
-            time.sleep(2)
-            if errors_bool is False:
-                print(f"Идет переход по ссылке {msgs[0].reply_markup.rows[0].buttons[0].url}")
-                url_rec = msgs[0].reply_markup.rows[0].buttons[0].url
-                tryes = 0
-                goods = False
-                while True:
-                    try:
-                        if goods is True:
-                            print(f"ВСЕ ЗАЕБУМБА БОТОМ ID-{x}")
-                            break
-                        if (tryes > 5):
-                            print(f"Неудачно БОТОМ ID-{x}")
-                            capcha = True
-                            break
-                        fp = urllib.request.urlopen(url_rec)
-                        print(f"Открывает БОТОМ ID-{x}")
-                        mybytes = fp.read()
-                        print(f"Читает БОТОМ ID-{x}")
-                        time.sleep(2)
-                        mystr = mybytes.decode("utf8")
-                        print(f"Декодит БОТОМ ID-{x}")
-                        time.sleep(2)
-                        fp.close()
-                        print(f"Закрывает БОТОМ ID-{x}")
-                        time.sleep(2)
-                        msgs = await client.get_messages(thisdialog, limit=1)
-                        for mes7 in msgs:
-                            if re.search(r'You must stay on the site for ', mes7.message):
-                                wait_time = str(mes7.message).replace('You must stay on the site for', '')
-                                wait_time = str(wait_time).replace('seconds to get your reward.', '')
-                                str_wait = int(wait_time) + 5
-                                print(f"Сидим пердим {str(str_wait)} секунд")
-                                time.sleep(int(wait_time) + 5)
-                                goods = True
+                time.sleep(2)
+                if errors_bool is False:
+                    print(f"Идет переход по ссылке {msgs[0].reply_markup.rows[0].buttons[0].url}")
+                    url_rec = msgs[0].reply_markup.rows[0].buttons[0].url
+                    tryes = 0
+                    goods = False
+                    while True:
+                        try:
+                            if goods is True:
+                                print(f"ВСЕ ЗАЕБУМБА БОТОМ ID-{x}")
                                 break
-
-                            elif re.search(r'Please stay on the site for at least ', mes7.message):
-                                wait_time = str(mes7.message).replace('Please stay on the site for at least ','')
-                                wait_time = str(wait_time).replace(' seconds...', '')
-                                str_wait = int(wait_time) + 5
-                                print(f"Сидим пердим {str(str_wait)} секунд")
-                                time.sleep(int(wait_time) + 5)
-                                goods = True
+                            if (tryes > 5):
+                                print(f"Неудачно БОТОМ ID-{x}")
+                                capcha = True
                                 break
-                        if re.search(r'\breCAPTCHA\b', mystr):
+                            fp = urllib.request.urlopen(url_rec)
+                            print(f"Открывает БОТОМ ID-{x}")
+                            mybytes = fp.read()
+                            print(f"Читает БОТОМ ID-{x}")
                             time.sleep(2)
-                            print(f"ПИДОРЫ DETECTED! БОТОМ ID-{x}")
-                            capcha = True
-                            break
-
-
-                        else:
-                            time.sleep(3)
+                            mystr = mybytes.decode("utf8")
+                            print(f"Декодит БОТОМ ID-{x}")
+                            time.sleep(2)
+                            fp.close()
+                            print(f"Закрывает БОТОМ ID-{x}")
+                            time.sleep(2)
                             msgs = await client.get_messages(thisdialog, limit=1)
-                            for mes3 in msgs:
-                                if re.search(r'You must stay on the site for ', mes3.message):
-                                    wait_time = str(mes3.message).replace('You must stay on the site for', '')
+                            for mes7 in msgs:
+                                if re.search(r'You must stay on the site for ', mes7.message):
+                                    wait_time = str(mes7.message).replace('You must stay on the site for', '')
                                     wait_time = str(wait_time).replace('seconds to get your reward.', '')
                                     str_wait = int(wait_time) + 5
-                                    print(f"Сидим пердим {str(str_wait)} секунд БОТОМ ID-{x}")
+                                    print(f"Сидим пердим {str(str_wait)} секунд")
                                     time.sleep(int(wait_time) + 5)
                                     goods = True
                                     break
 
-                                elif re.search(r'Please stay on the site for at least ', mes3.message):
-                                    wait_time = str(mes3.message).replace(
-                                        'Please stay on the site for at least ',
-                                        '')
+                                elif re.search(r'Please stay on the site for at least ', mes7.message):
+                                    wait_time = str(mes7.message).replace('Please stay on the site for at least ', '')
+                                    wait_time = str(wait_time).replace(' seconds...', '')
+                                    str_wait = int(wait_time) + 5
+                                    print(f"Сидим пердим {str(str_wait)} секунд")
+                                    time.sleep(int(wait_time) + 5)
+                                    goods = True
+                                    break
+                            if re.search(r'\breCAPTCHA\b', mystr):
+                                time.sleep(2)
+                                print(f"ПИДОРЫ DETECTED! БОТОМ ID-{x}")
+                                capcha = True
+                                break
+
+
+                            else:
+                                time.sleep(3)
+                                msgs = await client.get_messages(thisdialog, limit=1)
+                                for mes3 in msgs:
+                                    if re.search(r'You must stay on the site for ', mes3.message):
+                                        wait_time = str(mes3.message).replace('You must stay on the site for', '')
+                                        wait_time = str(wait_time).replace('seconds to get your reward.', '')
+                                        str_wait = int(wait_time) + 5
+                                        print(f"Сидим пердим {str(str_wait)} секунд БОТОМ ID-{x}")
+                                        time.sleep(int(wait_time) + 5)
+                                        goods = True
+                                        break
+
+                                    elif re.search(r'Please stay on the site for at least ', mes3.message):
+                                        wait_time = str(mes3.message).replace(
+                                            'Please stay on the site for at least ',
+                                            '')
+                                        wait_time = str(wait_time).replace(' seconds...', '')
+                                        str_wait = int(wait_time) + 5
+                                        print(f"Сидим пердим {str(str_wait)} секунд БОТОМ ID-{x}")
+                                        time.sleep(int(wait_time) + 5)
+                                        goods = True
+                                        break
+
+                                break
+                        except Exception as er:
+                            print(f"Смотрим БОТОМ ID-{x}")
+                            wait_time = 0
+
+                            msgs1 = await client.get_messages(thisdialog, limit=1)
+                            for mes6 in msgs1:
+                                print(mes6.message)
+                                if re.search(r'You must stay on the site for ', mes6.message):
+                                    wait_time = str(mes6.message).replace('You must stay on the site for', '')
+                                    wait_time = str(wait_time).replace('seconds to get your reward.', '')
+                                    str_wait = int(wait_time) + 5
+                                    print(f"Сидим пердим {str(str_wait)} секунд")
+                                    goods = True
+                                    time.sleep(int(wait_time) + 5)
+                                    break
+
+                                elif re.search(r'Please stay on the site for at least ', mes6.message):
+                                    wait_time = str(mes6.message).replace('Please stay on the site for at least ', '')
                                     wait_time = str(wait_time).replace(' seconds...', '')
                                     str_wait = int(wait_time) + 5
                                     print(f"Сидим пердим {str(str_wait)} секунд БОТОМ ID-{x}")
-                                    time.sleep(int(wait_time) + 5)
                                     goods = True
+                                    time.sleep(int(wait_time) + 5)
                                     break
+                                elif re.search(r'\bSorry\b', mes.message):
+                                    print("Пидоры извиняются")
+                                    wait_in_quests += 1
+                                    print("Ниче еще раз проверим")
+                                    capcha = True
+                                else:
+                                    print(f"Ошибка входа {er}. Пробую еще раз БОТОМ ID-{x}")
+                                    tryes += 1
+                                    time.sleep(1)
 
-                            break
-                    except Exception as er:
-                        print(f"Смотрим БОТОМ ID-{x}")
-                        wait_time = 0
-
-                        msgs1 = await client.get_messages(thisdialog, limit=1)
-                        for mes6 in msgs1:
-                            print(mes6.message)
-                            if re.search(r'You must stay on the site for ', mes6.message):
-                                wait_time = str(mes6.message).replace('You must stay on the site for', '')
-                                wait_time = str(wait_time).replace('seconds to get your reward.', '')
-                                str_wait = int(wait_time) + 5
-                                print(f"Сидим пердим {str(str_wait)} секунд")
-                                goods = True
-                                time.sleep(int(wait_time) + 5)
-                                break
-
-                            elif re.search(r'Please stay on the site for at least ', mes6.message):
-                                wait_time = str(mes6.message).replace('Please stay on the site for at least ', '')
-                                wait_time = str(wait_time).replace(' seconds...', '')
-                                str_wait = int(wait_time) + 5
-                                print(f"Сидим пердим {str(str_wait)} секунд БОТОМ ID-{x}")
-                                goods = True
-                                time.sleep(int(wait_time) + 5)
-                                break
-                            elif re.search(r'\bSorry\b', mes.message):
-                                print("Пидоры извиняются")
-                                wait_in_quests += 1
-                                print("Ниче еще раз проверим")
-                                capcha = True
-                            else:
-                                print(f"Ошибка входа {er}. Пробую еще раз БОТОМ ID-{x}")
-                                tryes += 1
-                                time.sleep(1)
-
-
-            if capcha is True:
-                print("Пробуем еще раз...")
-                msgs5 = await client.get_messages(thisdialog, limit=15)
-                for mes16 in msgs5:
-                    if re.search(r'Press the "Visit website"', mes16.message):
-                        await client(GetBotCallbackAnswerRequest(
-                            thisdialog,
-                            mes16.id,
-                            data=mes16.reply_markup.rows[1].buttons[1].data
-                        ))
-                        time.sleep(1)
-                        print(f"Скипаем хуйню БОТОМ ID-{x}")
-                        break
-                capcha_counts += 1
-            else:
-                stranger = False
-                time.sleep(0.2)
-                money_earned = ""
-                money_earned_float = 0.000000000000
-                msgs = await client.get_messages(thisdialog, limit=15)
-                for mes88 in msgs:
-                    if re.search(r'You earned ', mes88.message):
-                        money_earned = str(mes88.message).replace('You earned ', '')
-                        money_earned_float = float(str(money_earned).replace(' LTC for visiting a site!', ''))
-                        print(f"Бля хуйня ккая то {str(money_earned).replace(' LTC for visiting a site!', '')}")
-
-                        break
-
-
-                print(f"Заработано: " + str(money_earned_float) + "LTC")
-                if round(money_earned_float, 6) == 0.000000:
-                    print("Скипаем какую то неведомую пока что дичь")
-                    msgs888 = await client.get_messages(thisdialog, limit=15)
-                    for mes166 in msgs888:
-                        if re.search(r'Press the "Visit website"', mes166.message):
+                if capcha is True:
+                    print("Пробуем еще раз...")
+                    msgs5 = await client.get_messages(thisdialog, limit=15)
+                    for mes16 in msgs5:
+                        if re.search(r'Press the "Visit website"', mes16.message):
                             await client(GetBotCallbackAnswerRequest(
                                 thisdialog,
-                                mes166.id,
-                                data=mes166.reply_markup.rows[1].buttons[1].data
+                                mes16.id,
+                                data=mes16.reply_markup.rows[1].buttons[1].data
                             ))
                             time.sleep(1)
+                            print(f"Скипаем хуйню БОТОМ ID-{x}")
                             break
                     capcha_counts += 1
-                    stranger = True
+                else:
+                    stranger = False
+                    time.sleep(0.2)
+                    money_earned = ""
+                    money_earned_float = 0.000000000000
+                    msgs = await client.get_messages(thisdialog, limit=15)
+                    for mes88 in msgs:
+                        if re.search(r'You earned ', mes88.message):
+                            money_earned = str(mes88.message).replace('You earned ', '')
+                            money_earned_float = float(str(money_earned).replace(' LTC for visiting a site!', ''))
+                            print(f"Бля хуйня ккая то {str(money_earned).replace(' LTC for visiting a site!', '')}")
 
-                if stranger is False:
-                    #connect = sqlite.Connection("ParsedAccounts.db", timeout=15)
-                    #cur = connect.cursor()
-                    #cur.execute(f"SELECT LTC_Earned FROM RegistredBots WHERE ID = {x}")
-                    await asyncio.sleep(random.uniform(0.1 + x, 0.5 + x))
-                    #full_ltc = cur.fetchone()[0]
-                    await asyncio.sleep(random.uniform(0.1 + x, 0.5 + x))
-                    #print(f"ВСЕГО ЗАРАБОТАНО БОТОМ ID-{x} MONEY:{str(full_ltc)}")
-                    await asyncio.sleep(random.uniform(0.1 + x, 0.5 + x))
-                    #cur.execute(
-                    #    f"UPDATE RegistredBots SET LTC_Earned = {float(full_ltc) + float(money_earned_float)} WHERE ID = {x}")
-                    #connect.commit()
-                    #connect.close()
-                    await asyncio.sleep(random.uniform(0.1 + x, 0.7 + x))
-                    count_tryes += 1
-                    print(f"Давай еще {str(max_count_types - count_tryes)} разочка(ов) по-выполняем...")
+                            break
+
+                    print(f"Заработано: " + str(money_earned_float) + "LTC")
+                    if round(money_earned_float, 6) == 0.000000:
+                        print("Скипаем какую то неведомую пока что дичь")
+                        msgs888 = await client.get_messages(thisdialog, limit=15)
+                        for mes166 in msgs888:
+                            if re.search(r'Press the "Visit website"', mes166.message):
+                                await client(GetBotCallbackAnswerRequest(
+                                    thisdialog,
+                                    mes166.id,
+                                    data=mes166.reply_markup.rows[1].buttons[1].data
+                                ))
+                                time.sleep(1)
+                                break
+                        capcha_counts += 1
+                        stranger = True
+
+                    if stranger is False:
+                        # connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
+                        #                                password='s56u9555', host='localhost')
+                        # cur = connect.cursor()
+                        # cur.execute(f"SELECT LTC_Earned FROM RegistredBots WHERE ID = {x}")
+                        await asyncio.sleep(random.uniform(0.1 + x, 0.5 + x))
+                        # full_ltc = cur.fetchone()[0]
+                        await asyncio.sleep(random.uniform(0.1 + x, 0.5 + x))
+                        # print(f"ВСЕГО ЗАРАБОТАНО БОТОМ ID-{x} MONEY:{str(full_ltc)}")
+                        await asyncio.sleep(random.uniform(0.1 + x, 0.5 + x))
+                        # cur.execute(
+                        #    f"UPDATE RegistredBots SET LTC_Earned = {float(full_ltc) + float(money_earned_float)} WHERE ID = {x}")
+                        # connect.commit()
+                        # connect.close()
+                        await asyncio.sleep(random.uniform(0.1 + x, 0.7 + x))
+                        count_tryes += 1
+                        print(f"Давай еще {str(max_count_types - count_tryes)} разочка(ов) по-выполняем...")
+
+            except errors.FloodWaitError as e:
+                print(f'Нас опракинули ебалом в грязь сидим {e.seconds} секунд')
+                time.sleep(e.seconds)
 
 
 def wrap(i):
@@ -290,7 +295,8 @@ def main():
 
 
 if __name__ == '__main__':
-    connect = sqlite.Connection("ParsedAccounts.db")
+    connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
+                               password='s56u9555', host='localhost')
     cur1 = connect.cursor()
     cur1.execute("SELECT Count(ID) FROM RegistredBots")
 
@@ -303,4 +309,5 @@ if __name__ == '__main__':
 
 
 #TODO Отформатировать код.
-#TODO Перевести на PostgreSQL
+#TODO Переписать проверку заработка бота. (Мейби)Сделать мобильное приложение для просмотра баланса
+#TODO Переписать вывод в потоки. Переписать строку запроса для потоков SELECT Count(ID) FROM RegistredBots на SELECT ID FROM RegistredBots для того чтобы исправить ошибку

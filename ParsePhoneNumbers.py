@@ -1,16 +1,20 @@
-import sqlite3 as sqlite
-from os import system, name
 import datetime as time
+from os import system, name
+
+import psycopg2
+
 
 def error_controller(error):
-    connect = sqlite.Connection("ParsedAccounts.db")
+    connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
+                               password='s56u9555', host='localhost')
     cur = connect.cursor()
     cur.execute(f"""Insert Into Errors(Error, Date) VALUES (?, ?);""", (error, time.datetime.today()))
     connect.commit()
 
 def add_new_bots(telephone, password):
     try:
-        connect = sqlite.Connection("ParsedAccounts.db")
+        connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
+                                   password='s56u9555', host='localhost')
         cur = connect.cursor()
         cur.execute("""Insert Into Bots(Telephone, Password, AddDate) VALUES (?, ?, ?);""",
                     (telephone, password, time.datetime.today()))
@@ -25,7 +29,8 @@ def add_new_bots(telephone, password):
 def check_bots():
     try:
         big_result = ""
-        connect = sqlite.Connection("ParsedAccounts.db")
+        connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
+                                   password='s56u9555', host='localhost')
         cur = connect.cursor()
         cur.execute("SELECT Count(ID) FROM Bots")
         all_ids = int(cur.fetchone()[0])

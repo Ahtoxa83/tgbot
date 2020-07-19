@@ -1,31 +1,14 @@
-import selenium as webdriver
-import sqlite3 as sqlite
-import time
-from telethon import TelegramClient
-import re
 import asyncio
-import datetime
-from threading import Thread
-from multiprocessing import Queue
-import math as mathf
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import random
-from telethon import Button
-from telethon import sync, events
-import urllib.request
-from urllib.error import URLError, HTTPError
-from telethon import tl
-from telethon.tl.functions.messages import GetBotCallbackAnswerRequest
-import threading
-from telethon.tl.functions.users import GetFullUserRequest
-from telethon import errors
-from telethon.tl.types import PeerUser, PeerChat, PeerChannel
-from telethon.tl.functions.channels import LeaveChannelRequest
-from telethon.tl.functions.channels import JoinChannelRequest
+import re
+import time
+from threading import Thread
 
+import psycopg2
+from telethon import TelegramClient
+from telethon import errors
+from telethon.tl.functions.messages import GetBotCallbackAnswerRequest
+from telethon.tl.functions.users import GetFullUserRequest
 
 print(f"Готов вкалывать")
 #playsound('readytowork.mp3')
@@ -43,9 +26,10 @@ async def workThread(x):
         not_message = 0
         count_tryes = 0
         wait_in_quests = 0
-        max_count_types = random.randrange(3, 5)
+        max_count_types = 3
 
-        connect = sqlite.Connection("ParsedAccounts.db", timeout=15)
+        connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
+                                   password='s56u9555', host='localhost')
         cur = connect.cursor()
         cur.execute(f"SELECT API_ID FROM RegistredBots WHERE ID = {x}")
         Api_id = cur.fetchone()[0]
@@ -77,71 +61,77 @@ async def workThread(x):
                 print(f"Гавнокоденных заданий нет. Печалька а то так много давали")
                 exit = True
                 break
-            dialogs = await client.get_dialogs()
-            for dialog in dialogs:
-                if dialog.title == 'LTC Click Bot':
-                    thisdialog = dialog
-                    print(thisdialog.title)
-            await client.send_message('LTC Click Bot', '🤖 Message bots')
-            time.sleep(2)
-            msgs = await client.get_messages(thisdialog, limit=1)
-            for mes in msgs:
-                if re.search(r'\bSorry\b', mes.message):
-                    print("Пидоры извиняются")
-                    wait_in_quests += 1
-                    print("Ниче еще раз проверим")
+            try:
+                dialogs = await client.get_dialogs()
+                for dialog in dialogs:
+                    if dialog.title == 'LTC Click Bot':
+                        thisdialog = dialog
+                        print(thisdialog.title)
+                await client.send_message('LTC Click Bot', '🤖 Message bots')
+                time.sleep(2)
+                msgs = await client.get_messages(thisdialog, limit=1)
+                for mes in msgs:
+                    if re.search(r'\bSorry\b', mes.message):
+                        print("Пидоры извиняются")
+                        wait_in_quests += 1
+                        print("Ниче еще раз проверим")
 
-                    next = False
-                else:
-                    entity = mes.reply_markup.rows[0].buttons[0].url
-                    message_id = mes.id
-                    reqdata = mes.reply_markup.rows[1].buttons[1].data
-                    time.sleep(3)
-
-                if next is True:
-                    print(entity)
-                    entity = str(entity).replace("https://t.me/", "")
-                    entity = str(entity).split("?")[0]
-
-                    full = await client(GetFullUserRequest(entity))
-                    bot = full.user
-                    if bot.last_name is None:
-                        full_bot_entity = bot.first_name
+                        next = False
                     else:
-                        full_bot_entity = str(f"{bot.first_name} {bot.last_name}")
+                        entity = mes.reply_markup.rows[0].buttons[0].url
+                        message_id = mes.id
+                        reqdata = mes.reply_markup.rows[1].buttons[1].data
+                        time.sleep(3)
 
-                    print(entity)
-                    await client.send_message(entity, '/start')
+                    if next is True:
+                        print(entity)
+                        entity = str(entity).replace("https://t.me/", "")
+                        entity = str(entity).split("?")[0]
 
-                    time.sleep(5)
-                    for dialog in dialogs:
-                        if dialog.title == full_bot_entity:
-                            thisdialog1 = dialog
-                            print(thisdialog1.title)
-                    msgs2 = await client.get_messages(thisdialog1, limit=1)
-                    for mes2 in msgs2:
-                        if mes2 is None:
-                            print("Уебки на ботяре")
-                            await client(GetBotCallbackAnswerRequest(
-                                thisdialog,
-                                message_id,
-                                data=reqdata
-                            ))
-                            print("Скипаем уебского бота")
-                            not_message += 1
-                        elif mes2.message == "/start":
-                            print("Уебки на ботяре не пишет нихуя /start отправлять не буду")
-                            await client(GetBotCallbackAnswerRequest(
-                                thisdialog,
-                                message_id,
-                                data=reqdata
-                            ))
-                            print("Скипаем уебского бота")
-                            not_message += 1
+                        full = await client(GetFullUserRequest(entity))
+                        bot = full.user
+                        if bot.last_name is None:
+                            full_bot_entity = bot.first_name
                         else:
-                            await client.forward_messages('LTC Click Bot', mes2.id, entity)
-                            print(f"БОТ {x} ПОГОВОРИЛ С БОТОМ И ПОЛУЧИЛ КЭШ")
-                            count_tryes += 1
+                            full_bot_entity = str(f"{bot.first_name} {bot.last_name}")
+
+                        print(entity)
+                        await client.send_message(entity, '/start')
+
+                        time.sleep(5)
+                        for dialog in dialogs:
+                            if dialog.title == full_bot_entity:
+                                thisdialog1 = dialog
+                                print(thisdialog1.title)
+                        msgs2 = await client.get_messages(thisdialog1, limit=1)
+                        for mes2 in msgs2:
+                            if mes2 is None:
+                                print("Уебки на ботяре")
+                                await client(GetBotCallbackAnswerRequest(
+                                    thisdialog,
+                                    message_id,
+                                    data=reqdata
+                                ))
+                                print("Скипаем уебского бота")
+                                not_message += 1
+                            elif mes2.message == "/start":
+                                print("Уебки на ботяре не пишет нихуя /start отправлять не буду")
+                                await client(GetBotCallbackAnswerRequest(
+                                    thisdialog,
+                                    message_id,
+                                    data=reqdata
+                                ))
+                                print("Скипаем уебского бота")
+                                not_message += 1
+                            else:
+                                await client.forward_messages('LTC Click Bot', mes2.id, entity)
+                                print(f"БОТ {x} ПОГОВОРИЛ С БОТОМ И ПОЛУЧИЛ КЭШ")
+                                count_tryes += 1
+
+            except errors.FloodWaitError as e:
+                print(f'Нас опракинули ебалом в грязь сидим {e.seconds} секунд')
+                time.sleep(e.seconds)
+
 
 
 def wrap(i):
@@ -153,7 +143,8 @@ def wrap(i):
 
 
 if __name__ == '__main__':
-    connect = sqlite.Connection("ParsedAccounts.db")
+    connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
+                               password='s56u9555', host='localhost')
     cur1 = connect.cursor()
     cur1.execute("SELECT Count(ID) FROM RegistredBots")
 
@@ -165,4 +156,4 @@ if __name__ == '__main__':
 
 
 #TODO Отформатировать код.
-#TODO Перевести на PostgreSQL
+#TODO Переписать вывод в потоки. Переписать строку запроса для потоков SELECT Count(ID) FROM RegistredBots на SELECT ID FROM RegistredBots для того чтобы исправить ошибку

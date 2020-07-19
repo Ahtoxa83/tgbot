@@ -1,8 +1,8 @@
+import random
 import subprocess
 import sys
-import random
 import time
-import datetime
+
 from playsound import playsound
 
 x = 0
@@ -20,10 +20,16 @@ while True:
     x += 1
     process = subprocess.Popen([sys.executable, "RunBots.py"])
     process.wait()
+    print(f"Отдыхаем 60 секунд")
+    time.sleep(60)
     process = subprocess.Popen([sys.executable, "TestMessagingWithBots.py"])
     process.wait()
+    print(f"Отдыхаем 60 секунд")
+    time.sleep(60)
     process = subprocess.Popen([sys.executable, "JoinChannelsTests.py"])
     process.wait()
+    print(f"Отдыхаем 60 секунд")
+    time.sleep(60)
     print(f"Успешно Круг:{x}")
     print(f"Время:{time.time() - times}")
     if x % 10 == 0:
