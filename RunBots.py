@@ -21,7 +21,7 @@ async def workThread(x):
         if exit_pool is True:
             break
         connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                   password='s56u9555', host='localhost')
+                                   password='xxxx', host='localhost')
 
         cur = connect.cursor()
         cur.execute(f"SELECT API_ID FROM RegistredBots WHERE ID = {x}")
@@ -261,7 +261,7 @@ async def workThread(x):
 
                     if stranger is False:
                         # connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                        #                                password='s56u9555', host='localhost')
+                        #                                password='xxxxx', host='localhost')
                         # cur = connect.cursor()
                         # cur.execute(f"SELECT LTC_Earned FROM RegistredBots WHERE ID = {x}")
                         await asyncio.sleep(random.uniform(0.1 + x, 0.5 + x))
@@ -296,7 +296,7 @@ def main():
 
 if __name__ == '__main__':
     connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                               password='s56u9555', host='localhost')
+                               password='xxxx', host='localhost')
     cur1 = connect.cursor()
     cur1.execute("SELECT Count(ID) FROM RegistredBots")
 

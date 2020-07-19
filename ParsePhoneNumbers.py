@@ -6,7 +6,7 @@ import psycopg2
 
 def error_controller(error):
     connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                               password='s56u9555', host='localhost')
+                               password='xxxx', host='localhost')
     cur = connect.cursor()
     cur.execute(f"""Insert Into Errors(Error, Date) VALUES (?, ?);""", (error, time.datetime.today()))
     connect.commit()
@@ -14,7 +14,7 @@ def error_controller(error):
 def add_new_bots(telephone, password):
     try:
         connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                   password='s56u9555', host='localhost')
+                                   password='xxxx', host='localhost')
         cur = connect.cursor()
         cur.execute("""Insert Into Bots(Telephone, Password, AddDate) VALUES (?, ?, ?);""",
                     (telephone, password, time.datetime.today()))
@@ -30,7 +30,7 @@ def check_bots():
     try:
         big_result = ""
         connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                   password='s56u9555', host='localhost')
+                                   password='xxxx', host='localhost')
         cur = connect.cursor()
         cur.execute("SELECT Count(ID) FROM Bots")
         all_ids = int(cur.fetchone()[0])

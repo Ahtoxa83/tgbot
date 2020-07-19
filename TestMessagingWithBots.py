@@ -29,7 +29,7 @@ async def workThread(x):
         max_count_types = 3
 
         connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                   password='s56u9555', host='localhost')
+                                   password='xxxx', host='localhost')
         cur = connect.cursor()
         cur.execute(f"SELECT API_ID FROM RegistredBots WHERE ID = {x}")
         Api_id = cur.fetchone()[0]
@@ -144,7 +144,7 @@ def wrap(i):
 
 if __name__ == '__main__':
     connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                               password='s56u9555', host='localhost')
+                               password='xxxxx', host='localhost')
     cur1 = connect.cursor()
     cur1.execute("SELECT Count(ID) FROM RegistredBots")
 

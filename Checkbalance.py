@@ -11,7 +11,7 @@ async def checks():
     sumofbalance = 0.00
     withdraw = 0.00
     connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                               password='s56u9555', host='localhost')
+                               password='xxxx', host='localhost')
     cur1 = connect.cursor()
     cur1.execute("SELECT ID FROM RegistredBots")
     max = cur1.fetchall()
@@ -20,7 +20,7 @@ async def checks():
     for s in max:
         for i in s:
             connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                       password='s56u9555', host='localhost')
+                                       password='xxxxx', host='localhost')
             cur1 = connect.cursor()
             print(f"Проверка баланса у бота ID:{int(i)}")
             cur1.execute(f"SELECT API_ID FROM RegistredBots WHERE ID = {i}")
@@ -55,7 +55,8 @@ async def checks():
                             print("Баланс больше 0.0004 произвожу вывод...")
                             await client.send_message('LTC Click Bot', '💵 Withdraw')
                             time.sleep(1)
-                            connect = sqlite.Connection("ParsedAccounts.db")
+                            connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
+                                       password='xxxxx', host='localhost')
                             cur1 = connect.cursor()
                             time.sleep(1)
                             cur1.execute(f"SELECT Wallet_Id FROM RegistredBots WHERE ID = {i}")

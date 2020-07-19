@@ -4,7 +4,7 @@ import psycopg2
 
 print("Проверка забаненых аккаунтов...")
 connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                   password='s56u9555', host='localhost')
+                                   password='sxxxx', host='localhost')
 cur = connect.cursor()
 cur.execute("SELECT Count(ID) FROM Bots")
 all_ids = int(cur.fetchone()[0])
@@ -33,7 +33,7 @@ if all_ids != 0:
         x = x + 1
 
 connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                   password='s56u9555', host='localhost')
+                                   password='xxxxx', host='localhost')
 cur = connect.cursor()
 cur.execute("SELECT Count(ID) FROM RegistredBots")
 all_ids = int(cur.fetchone()[0])

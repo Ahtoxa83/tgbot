@@ -15,7 +15,7 @@ def clear():
 def find_bot(telephone):
     try:
         connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                   password='s56u9555', host='localhost')
+                                   password='xxxxx', host='localhost')
         cur = connect.cursor()
         cur.execute(f"SELECT ID FROM Bots WHERE Telephone = {telephone}")
         ids = cur.fetchone()[0]
@@ -30,7 +30,7 @@ def find_bot(telephone):
 def add_new_bots(telephone, api_id, api_hash, session):
     try:
         connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                   password='s56u9555', host='localhost')
+                                   password='xxxx', host='localhost')
         cur = connect.cursor()
         cur.execute("""Insert Into RegistredBots(Phone, API_ID, API_HASH, Session) VALUES (?, ?, ?, ?);""",
                     (telephone, api_id, api_hash, session))
@@ -54,7 +54,7 @@ if id != -1:
     while True:
         i = 0
         connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                   password='s56u9555', host='localhost')
+                                   password='xxxx', host='localhost')
         cur = connect.cursor()
         session = f"anon{id+i}"
         cur.execute(f"SELECT Session FROM RegistredBots WHERE Session = '{session}'")

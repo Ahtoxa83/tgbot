@@ -21,7 +21,7 @@ print(f"Готов вкалывать")
 async def workThread(x):
     await asyncio.sleep(random.uniform(0.1, 0.5))
     connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                        password='s56u9555', host='localhost')
+                        password='xxxx', host='localhost')
     cur = connect.cursor()
     cur.execute(f"SELECT API_ID FROM RegistredBots WHERE ID = {x}")
     Api_id = cur.fetchone()[0]
@@ -90,7 +90,7 @@ async def workThread(x):
             print("Нету свободного места. Проверка доступности выхода с одного из каналов")
             error_count += 1
             connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                       password='s56u9555', host='localhost')
+                                       password='xxxx', host='localhost')
             cur = connect.cursor()
             cur.execute(f"SELECT id,channel, leave_time FROM channel_entity WHERE bot_id = {x}")
             all_channels = cur.fetchall()
@@ -142,7 +142,7 @@ async def workThread(x):
                 hours_added = datetime.timedelta(hours=int(hours))
                 future_date_and_time = current_date_and_time + hours_added
                 connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                           password='s56u9555', host='localhost')
+                                           password='xxxxx', host='localhost')
                 cur = connect.cursor()
                 cur.execute(f"INSERT INTO channel_entity(channel, join_time, leave_time, bot_id) "
                             f"VALUES ('{entity}', '{current_date_and_time}', '{future_date_and_time}', {x})")
@@ -156,7 +156,7 @@ async def workThread(x):
         time.sleep(3)
         print("Последняя проверка")
         connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                   password='s56u9555', host='localhost')
+                                   password='xxxxx', host='localhost')
         cur = connect.cursor()
         cur.execute(f"SELECT id,channel, leave_time FROM channel_entity WHERE bot_id = {x}")
         all_channels = cur.fetchall()
