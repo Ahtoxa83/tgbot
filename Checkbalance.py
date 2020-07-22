@@ -6,12 +6,14 @@ import psycopg2
 from telethon import TelegramClient
 from telethon import errors
 
+f = open('password.txt', 'r')
+password = f.read()
 
 async def checks():
     sumofbalance = 0.00
     withdraw = 0.00
     connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                               password='xxxx', host='localhost')
+                               password=password, host='localhost')
     cur1 = connect.cursor()
     cur1.execute("SELECT ID FROM RegistredBots")
     max = cur1.fetchall()
@@ -20,7 +22,7 @@ async def checks():
     for s in max:
         for i in s:
             connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                       password='xxxxx', host='localhost')
+                                       password=password, host='localhost')
             cur1 = connect.cursor()
             print(f"Проверка баланса у бота ID:{int(i)}")
             cur1.execute(f"SELECT API_ID FROM RegistredBots WHERE ID = {i}")
@@ -56,7 +58,7 @@ async def checks():
                             await client.send_message('LTC Click Bot', '💵 Withdraw')
                             time.sleep(1)
                             connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                       password='xxxxx', host='localhost')
+                                       password=password, host='localhost')
                             cur1 = connect.cursor()
                             time.sleep(1)
                             cur1.execute(f"SELECT Wallet_Id FROM RegistredBots WHERE ID = {i}")

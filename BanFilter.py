@@ -2,9 +2,13 @@ import datetime as time
 
 import psycopg2
 
+f = open('password.txt', 'r')
+password = f.read()
+
+
 print("Проверка забаненых аккаунтов...")
-connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                   password='sxxxx', host='localhost')
+connect = connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
+                                   password=password, host='localhost')
 cur = connect.cursor()
 cur.execute("SELECT Count(ID) FROM Bots")
 all_ids = int(cur.fetchone()[0])
@@ -32,8 +36,8 @@ if all_ids != 0:
             print("Перевод завершен")
         x = x + 1
 
-connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                   password='xxxxx', host='localhost')
+connect = connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
+                                   password=password, host='localhost')
 cur = connect.cursor()
 cur.execute("SELECT Count(ID) FROM RegistredBots")
 all_ids = int(cur.fetchone()[0])

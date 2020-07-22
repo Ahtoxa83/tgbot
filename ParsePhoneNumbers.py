@@ -1,28 +1,23 @@
-import datetime as time
 from os import system, name
 
 import psycopg2
 
+f = open('password.txt', 'r')
+password = f.read()
 
-def error_controller(error):
-    connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                               password='xxxx', host='localhost')
-    cur = connect.cursor()
-    cur.execute(f"""Insert Into Errors(Error, Date) VALUES (?, ?);""", (error, time.datetime.today()))
-    connect.commit()
 
 def add_new_bots(telephone, password):
     try:
         connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                   password='xxxx', host='localhost')
+                                   password=password, host='localhost')
         cur = connect.cursor()
-        cur.execute("""Insert Into Bots(Telephone, Password, AddDate) VALUES (?, ?, ?);""",
-                    (telephone, password, time.datetime.today()))
+        cur.execute(f"Insert Into Bots(Telephone, Password, AddDate) VALUES ({telephone}, {password}, '2020-12-11')")
+
         connect.commit()
     except Exception as e:
         print(f"Ошибка {str(e)}. Вношу ошибку в базу данных...")
         error = f"Ошибка {str(e)} при добавлении ботов."
-        error_controller(error)
+
         print(f"Ошибка внесена в базу данных.")
 
 
@@ -30,7 +25,7 @@ def check_bots():
     try:
         big_result = ""
         connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                   password='xxxx', host='localhost')
+                                   password=password, host='localhost')
         cur = connect.cursor()
         cur.execute("SELECT Count(ID) FROM Bots")
         all_ids = int(cur.fetchone()[0])
@@ -50,7 +45,7 @@ def check_bots():
                 except Exception as e:
                     print(f"Ошибка {str(e)} in bot ID {x}. Вношу ошибку в базу данных...")
                     error = f"Ошибка {str(e)} int bot ID {x} при проверке ботов."
-                    error_controller(error)
+
                     print(f"Ошибка внесена в базу данных.")
                     x = x + 1
             print(f"Все боты:\n{big_result}")
@@ -59,7 +54,7 @@ def check_bots():
     except Exception as e:
         print(f"Ошибка {str(e)}. Вношу ошибку в базу данных...")
         error = f"Ошибка {str(e)} при проверке ботов."
-        error_controller(error)
+
         print(f"Ошибка внесена в базу данных.")
 
 

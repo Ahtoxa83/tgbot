@@ -2,3 +2,4 @@
 *.db
 .idea/
 /anon1.session
+*.txt

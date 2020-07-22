@@ -24,12 +24,12 @@ while True:
     time.sleep(60)
     process = subprocess.Popen([sys.executable, "TestMessagingWithBots.py"])
     process.wait()
-    print(f"Отдыхаем 60 секунд")
-    time.sleep(60)
-    process = subprocess.Popen([sys.executable, "JoinChannelsTests.py"])
-    process.wait()
-    print(f"Отдыхаем 60 секунд")
-    time.sleep(60)
+    if x % 5 == 0:
+        print(f"Отдыхаем 120 секунд перед заданием на вход в каналы")
+        time.sleep(120)
+        process = subprocess.Popen([sys.executable, "JoinChannelsTests.py"])
+        process.wait()
+
     print(f"Успешно Круг:{x}")
     print(f"Время:{time.time() - times}")
     if x % 10 == 0:

@@ -10,6 +10,8 @@ from telethon import TelegramClient
 from telethon import errors
 from telethon.tl.functions.messages import GetBotCallbackAnswerRequest
 
+f = open('password.txt', 'r')
+password = f.read()
 
 async def workThread(x):
     await asyncio.sleep(random.uniform(0.1, 0.5))
@@ -21,7 +23,7 @@ async def workThread(x):
         if exit_pool is True:
             break
         connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                                   password='xxxx', host='localhost')
+                                   password=password, host='localhost')
 
         cur = connect.cursor()
         cur.execute(f"SELECT API_ID FROM RegistredBots WHERE ID = {x}")
@@ -261,7 +263,7 @@ async def workThread(x):
 
                     if stranger is False:
                         # connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                        #                                password='xxxxx', host='localhost')
+                        #                                password=password, host='localhost')
                         # cur = connect.cursor()
                         # cur.execute(f"SELECT LTC_Earned FROM RegistredBots WHERE ID = {x}")
                         await asyncio.sleep(random.uniform(0.1 + x, 0.5 + x))
@@ -296,7 +298,7 @@ def main():
 
 if __name__ == '__main__':
     connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
-                               password='xxxx', host='localhost')
+                               password=password, host='localhost')
     cur1 = connect.cursor()
     cur1.execute("SELECT Count(ID) FROM RegistredBots")
 
