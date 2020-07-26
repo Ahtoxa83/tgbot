@@ -3,7 +3,6 @@ import datetime
 import random
 import re
 import time
-from threading import Thread
 
 import psycopg2
 from telethon import TelegramClient
@@ -210,16 +209,14 @@ def wrap(i):
 
 
 if __name__ == '__main__':
-    connect5 = psycopg2.connect(dbname='parsedaccounts', user='postgres',
+    connect = psycopg2.connect(dbname='parsedaccounts', user='postgres',
                                password=password, host='localhost')
-    cur1 = connect5.cursor()
-    cur1.execute("SELECT Count(ID) FROM RegistredBots")
+    cur1 = connect.cursor()
+    cur1.execute("SELECT ID FROM RegistredBots")
 
-    nums = cur1.fetchone()[0]
-    connect5.close()
-    p = []
-    for i in range(1, nums + 1):
-        p1 = Thread(target=wrap, args=(i,)).start()
+    nums = cur1.fetchall()
+    for num in nums:
+        wrap(num[0])
 
 
 
